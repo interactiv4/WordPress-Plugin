@@ -108,6 +108,16 @@ class Purgely_Settings_Page
             'fastly-webhooks',
             array($this, 'options_page_webhooks')
         );
+
+        $edgemodulesHookname = add_submenu_page(
+            'fastly',
+            __('Fastly Edge Modules', 'purgely'),
+            __('Edge Modules', 'purgely'),
+            'manage_options',
+            'fastly-edge-modules',
+            array($this, 'options_page_edgemodules')
+        );
+        add_action( 'load-'.$edgemodulesHookname, array($this, 'options_page_edgemodules_submit') );
     }
 
 
@@ -1862,7 +1872,6 @@ class Purgely_Settings_Page
         <?php
     }
 
-
     /**
      * Render the setting input.
      *
@@ -1995,6 +2004,28 @@ class Purgely_Settings_Page
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * Print the edge modules settings page.
+     *
+     * @return void
+     */
+    public function options_page_edgemodules()
+    {
+        Fastly_Edgemodules::getInstance()->renderSettings();
+    }
+
+    /**
+     * Send snippets to Fastly and store options on database
+     *
+     * @return void
+     */
+    public function options_page_edgemodules_submit()
+    {
+        if ('POST' === $_SERVER['REQUEST_METHOD'] && wp_verify_nonce($_POST['nonce'], 'fastly-edge-modules')) {
+            Fastly_Edgemodules::getInstance()->processFormSubmission($_POST);
+        }
     }
 
     /**
